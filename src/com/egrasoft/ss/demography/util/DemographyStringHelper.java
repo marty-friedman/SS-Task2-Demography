@@ -65,11 +65,11 @@ public class DemographyStringHelper implements StringHelper {
 
     @Override
     public String getDataProcessingErrorDialogTitle() {
-        return null; //todo
+        return null; //no error can occur
     }
 
     @Override
     public String getDataProcessingErrorDialogText(String... params) {
-        return null; //todo
+        return null; //no error can occur
     }
 }

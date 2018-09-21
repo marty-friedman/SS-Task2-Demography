@@ -20,6 +20,7 @@ public class DemographyApplication extends Application {
         URL frameView = getClass().getClassLoader().getResource(Constants.Location.MAIN_FRAME_VIEW_LOCATION);
         FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(frameView));
         loader.setController(new MainFrameController(stage));
+        loader.setResources(localizationService.getCurrentBundle());
         Parent root = loader.load();
         stage.setTitle(localizationService.getString(Constants.Frame.FRAME_TITLE_KEY));
         stage.setScene(new Scene(root));
