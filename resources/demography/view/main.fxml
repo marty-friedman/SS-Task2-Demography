@@ -12,7 +12,7 @@
    <children>
       <MenuBar prefHeight="29.0" prefWidth="753.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="%menu.file">
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#doFileNew" text="%menu.file.new">
                      <accelerator>
@@ -38,9 +38,13 @@
                   <MenuItem mnemonicParsing="false" onAction="#doQuit" text="%menu.file.quit" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
+          <Menu mnemonicParsing="false" text="%menu.edit">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#doAddEntry" text="%menu.edit.add" />
+              <MenuItem mnemonicParsing="false" onAction="#doAddEntry" text="%menu.edit.add">
+                  <accelerator>
+                      <KeyCodeCombination alt="UP" code="INSERT" control="UP" meta="UP" shift="UP" shortcut="UP" />
+                  </accelerator>
+              </MenuItem>
               <MenuItem mnemonicParsing="false" onAction="#doDeleteEntry" text="%menu.edit.delete">
                   <accelerator>
                       <KeyCodeCombination alt="UP" code="DELETE" control="UP" meta="UP" shift="UP" shortcut="UP" />
@@ -48,7 +52,12 @@
               </MenuItem>
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+            <Menu mnemonicParsing="false" text="%menu.analysis">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#doAnalysis" text="%menu.analysis.peoplepercity" />
+              </items>
+            </Menu>
+          <Menu mnemonicParsing="false" text="%menu.help">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#doAbout" text="%menu.help.about">
                   <accelerator>

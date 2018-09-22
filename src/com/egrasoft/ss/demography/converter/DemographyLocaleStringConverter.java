@@ -1,4 +1,4 @@
-package com.egrasoft.ss.demography.util;
+package com.egrasoft.ss.demography.converter;
 
 import javafx.util.StringConverter;
 

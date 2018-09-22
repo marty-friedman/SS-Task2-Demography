@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="359.0" prefWidth="566.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button layoutX="406.0" layoutY="319.0" mnemonicParsing="false" onAction="#doOk" prefWidth="80.0" text="%frame.analysis.ok" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+      <TableView fx:id="table" layoutX="14.0" layoutY="14.0" prefHeight="294.0" prefWidth="538.0" AnchorPane.bottomAnchor="51.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+        <columns>
+          <TableColumn fx:id="cityColumn" prefWidth="269.0" text="%model.analysis.city" />
+          <TableColumn fx:id="countColumn" prefWidth="268.0" text="%model.analysis.count" />
+        </columns>
+      </TableView>
+      <Label fx:id="label" layoutX="14.0" layoutY="324.0" prefHeight="16.0" prefWidth="378.0" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="14.0" />
+   </children>
+</AnchorPane>

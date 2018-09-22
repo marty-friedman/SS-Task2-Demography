@@ -3,16 +3,15 @@ package com.egrasoft.ss.demography.controller;
 import com.egrasoft.fxcommons.controller.FileWorkFrameController;
 import com.egrasoft.fxcommons.service.FileManagerService;
 import com.egrasoft.fxcommons.util.ControllerUtils;
-import com.egrasoft.fxcommons.util.StringHelper;
+import com.egrasoft.ss.demography.converter.DemographyIntegerStringConverter;
+import com.egrasoft.ss.demography.converter.DemographyLocaleStringConverter;
 import com.egrasoft.ss.demography.model.Citizen;
 import com.egrasoft.ss.demography.model.CitizenList;
 import com.egrasoft.ss.demography.service.DemographyFileManagerService;
+import com.egrasoft.ss.demography.service.FrameService;
 import com.egrasoft.ss.demography.service.LocalizationService;
 import com.egrasoft.ss.demography.util.Constants;
-import com.egrasoft.ss.demography.util.DemographyIntegerStringConverter;
-import com.egrasoft.ss.demography.util.DemographyLocaleStringConverter;
-import com.egrasoft.ss.demography.util.DemographyStringHelper;
-import javafx.beans.value.ChangeListener;
+import com.egrasoft.ss.demography.util.DemographyMessageHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -24,8 +23,8 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -34,7 +33,9 @@ import static com.egrasoft.fxcommons.util.ControllerUtils.createMessageDialog;
 public class MainFrameController extends FileWorkFrameController<CitizenList> {
     private DemographyFileManagerService fileManagerService = DemographyFileManagerService.getInstance();
     private LocalizationService localizationService = LocalizationService.getInstance();
-    private StringHelper stringHelper = new DemographyStringHelper();
+    private FrameService frameService = FrameService.getInstance();
+
+    private Stage stage;
 
     private ObservableList<Citizen> items = FXCollections.observableArrayList();
 
@@ -56,42 +57,30 @@ public class MainFrameController extends FileWorkFrameController<CitizenList> {
     private TableColumn<Citizen, Locale> languageColumn;
 
     public MainFrameController(Stage stage) {
-        super(stage);
-        Runnable titleListener = () -> {
-            String title = localizationService.getString(Constants.Frame.FRAME_TITLE_KEY);
-            if (hasFile()) {
-                title += " (" + (getCurrentFile() == null ?
-                        localizationService.getString(Constants.Frame.ANONYMOUS_FILE_TITLE_KEY) :
-                        getCurrentFile().getName()) + ")";
-                if (hasUnsavedChanges())
-                    title += " *";
-            }
-            stage.setTitle(title);
-        };
-        addCurrentFileEventHandler(titleListener);
-        addHasUnsavedChangesEventHandler(titleListener);
-        addHasFileEventHandler(titleListener);
+        super(stage, new DemographyMessageHelper());
+        this.stage = stage;
     }
 
     @FXML
     @SuppressWarnings("unchecked")
     private void initialize() {
         items = FXCollections.observableArrayList();
-        items.addListener((ListChangeListener<Citizen>) c -> markChanged(true));
+        items.addListener((ListChangeListener<Citizen>) c -> { markChanged(true); updateTitle(); });
         table.setItems(items);
+        ControllerUtils.markPresentRowsWithBorders(table, 1, "darkgrey");
 
-        ChangeListener listener = (observable, oldValue, newValue) -> markChanged(true);
+        Consumer<TableColumn.CellEditEvent> listener = event -> { markChanged(true); updateTitle(); };
         StringConverter<String> stringStringConverter = new DefaultStringConverter();
         StringConverter<Integer> integerStringConverter = new DemographyIntegerStringConverter();
         StringConverter<Locale> localeStringConverter = new DemographyLocaleStringConverter();
 
-        ControllerUtils.prepareTableColumn(firstNameColumn, Citizen::getFirstName, listener, stringStringConverter);
-        ControllerUtils.prepareTableColumn(lastNameColumn, Citizen::getLastName, listener, stringStringConverter);
-        ControllerUtils.prepareTableColumn(countryColumn, Citizen::getCountry, listener, stringStringConverter);
-        ControllerUtils.prepareTableColumn(cityColumn, Citizen::getCity, listener, stringStringConverter);
-        ControllerUtils.prepareTableColumn(addressColumn, Citizen::getAddress, listener, stringStringConverter);
-        ControllerUtils.prepareTableColumn(ageColumn, Citizen::getAge, listener, integerStringConverter);
-        ControllerUtils.prepareTableColumn(languageColumn, Citizen::getLanguage, listener, localeStringConverter);
+        ControllerUtils.prepareTableColumn(firstNameColumn, Citizen::getFirstName, Citizen::setFirstName, listener, stringStringConverter);
+        ControllerUtils.prepareTableColumn(lastNameColumn, Citizen::getLastName, Citizen::setLastName, listener, stringStringConverter);
+        ControllerUtils.prepareTableColumn(countryColumn, Citizen::getCountry, Citizen::setCountry, listener, stringStringConverter);
+        ControllerUtils.prepareTableColumn(cityColumn, Citizen::getCity, Citizen::setCity, listener, stringStringConverter);
+        ControllerUtils.prepareTableColumn(addressColumn, Citizen::getAddress, Citizen::setAddress, listener, stringStringConverter);
+        ControllerUtils.prepareTableColumn(ageColumn, Citizen::getAge, Citizen::setAge, listener, integerStringConverter);
+        ControllerUtils.prepareTableColumn(languageColumn, Citizen::getLanguage, Citizen::setLanguage, listener, localeStringConverter);
     }
 
     @FXML
@@ -143,14 +132,15 @@ public class MainFrameController extends FileWorkFrameController<CitizenList> {
                 localizationService.getString(Constants.Dialogs.ABOUT_CONTENT_TEXT_KEY)).showAndWait();
     }
 
-    @Override
-    protected FileManagerService<CitizenList> getFileManagerService() {
-        return fileManagerService;
+    @FXML
+    private void doAnalysis() throws IOException {
+        if (hasFile())
+            frameService.initAnalysisFrame(getCurrentData()).show();
     }
 
     @Override
-    protected StringHelper getStringHelper() {
-        return stringHelper;
+    protected FileManagerService<CitizenList> getFileManagerService() {
+        return fileManagerService;
     }
 
     @Override
@@ -159,22 +149,40 @@ public class MainFrameController extends FileWorkFrameController<CitizenList> {
     }
 
     @Override
-    protected Consumer<CitizenList> getOpenFileHandler() {
-        return this::updateItems;
+    protected void onFileSaved() {
+        updateTitle();
     }
 
     @Override
-    protected Runnable getCloseFileHandler() {
-        return () -> updateItems(new ArrayList<>());
+    protected void onFileOpened(CitizenList citizens) {
+        items.setAll(citizens);
+        markChanged(false);
+        updateTitle();
     }
 
     @Override
-    protected Runnable getNewFileHandler() {
-        return () -> updateItems(new ArrayList<>());
-    }
-
-    private void updateItems(List<Citizen> citizens) {
+    protected void onFileClosed() {
         items.clear();
-        items.addAll(citizens);
+        markChanged(false);
+        updateTitle();
+    }
+
+    @Override
+    protected void onFileNew() {
+        items.clear();
+        updateTitle();
+    }
+
+    private void updateTitle() {
+        String title = localizationService.getString(Constants.Frame.MAIN_FRAME_TITLE_KEY);
+        if (hasFile()) {
+            File currentFile = getCurrentFile();
+            String fileName = currentFile == null ?
+                    localizationService.getString(Constants.Misc.ANONYMOUS_FILE_NAME_KEY) : currentFile.getName();
+            title += " (" + fileName + ")";
+            if (hasUnsavedChanges())
+                title += " *";
+        }
+        stage.setTitle(title);
     }
 }

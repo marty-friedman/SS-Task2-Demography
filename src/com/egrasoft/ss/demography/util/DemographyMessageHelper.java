@@ -1,11 +1,11 @@
 package com.egrasoft.ss.demography.util;
 
-import com.egrasoft.fxcommons.util.StringHelper;
+import com.egrasoft.fxcommons.util.MessageHelper;
 import com.egrasoft.ss.demography.service.LocalizationService;
 
 import static com.egrasoft.ss.demography.util.Constants.Dialogs.*;
 
-public class DemographyStringHelper implements StringHelper {
+public class DemographyMessageHelper implements MessageHelper {
     private LocalizationService localizationService = LocalizationService.getInstance();
 
     @Override
