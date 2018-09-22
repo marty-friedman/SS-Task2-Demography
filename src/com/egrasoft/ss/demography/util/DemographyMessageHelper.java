@@ -62,14 +62,4 @@ public class DemographyMessageHelper implements MessageHelper {
     public String getAskForSavingOptionCancel() {
         return localizationService.getString(ASK_FOR_SAVING_CANCEL_KEY);
     }
-
-    @Override
-    public String getDataProcessingErrorDialogTitle() {
-        return null; //no error can occur
-    }
-
-    @Override
-    public String getDataProcessingErrorDialogText(String... params) {
-        return null; //no error can occur
-    }
 }
