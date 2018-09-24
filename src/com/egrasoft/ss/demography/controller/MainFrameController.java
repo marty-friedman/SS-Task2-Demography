@@ -156,14 +156,12 @@ public class MainFrameController extends FileWorkFrameController<CitizenList> {
     @Override
     protected void onFileOpened(CitizenList citizens) {
         items.setAll(citizens);
-        markChanged(false);
         updateTitle();
     }
 
     @Override
     protected void onFileClosed() {
         items.clear();
-        markChanged(false);
         updateTitle();
     }
 
